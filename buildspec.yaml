@@ -9,7 +9,7 @@ phases:
       - pip install pipenv --user
       - pipenv install awscli aws-sam-cli
       - pipenv run sam package --template-file template.yaml --s3-bucket sam-app-sample --output-template-file packaged-template.yaml
-      - pipenv run sam deploy --template-file packaged.yaml --region us-east-1 --capabilities CAPABILITY_IAM --stack-name aws-sam-getting-started
+      - pipenv run aws cloudformation deploy --template-file /codebuild/output/src314528842/src/packaged-template.yaml --stack-name HelloServerLess
 artifacts:
   files:
     - packaged-template.yaml
