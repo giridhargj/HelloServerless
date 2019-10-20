@@ -12,4 +12,4 @@ phases:
       - pipenv deploy --template-file packaged.yaml --region us-east-1 --capabilities CAPABILITY_IAM --stack-name aws-sam-getting-started
 artifacts:
   files:
-    - packaged-template.yml
+    - packaged-template.yaml
