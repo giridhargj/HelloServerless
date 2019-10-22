@@ -11,5 +11,7 @@ phases:
       - export BUCKET=sam-app-sample
       - pipenv run sam package --template-file template.yaml --s3-bucket $BUCKET --output-template-file outputtemplate.yaml
 artifacts:
+  type: zip
   files:
-    - packaged-template.yaml
+    - template.yaml
+    - outputtemplate.yaml
