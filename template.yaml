@@ -1,38 +1,111 @@
-AWSTemplateFormatVersion: '2010-09-09'
-Transform: AWS::Serverless-2016-10-31
-Description: >
-  sam-app
-
-  Sample SAM Template for sam-app
-
-# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
-Globals:
-  Function:
-    Timeout: 3
-
+AWSTemplateFormatVersion: 2010-09-09
+Description: This Lambda is used for tblocker generator
+Parameters:
+  ApplicationName:
+    Type: String
+    Default: av-spcsa
+    Description: The name of the application to create a security group for
+  VpcId:
+    Type: AWS::EC2::VPC::Id
+    Description: Choose which VPC the Application Load Balancer should be deployed to
+  Subnets:
+    Type: List<AWS::EC2::Subnet::Id>
+    Description: List of subnets to use
+  LambdaExceutionRole:
+    Description: 'Lambda execution role, with access to SSM, SNS.'
+    Default: >-
+      arn:aws:iam::245514562534:role/aws-sam-getting-started-HelloWorldFunctionRole-18R3R7MQBPJCN
+    Type: String
+  DBssmparam:
+    Description: SSM parameter with DB details.
+    Default: DB_DEV_PARAM
+    Type: String
+  DBFunctionName:
+    Description: Name of Db function used for clean up.
+    Default: totalRecords
+    Type: String
+  S3BucketName:
+    Description: Name of db bucket storing lambda code.
+    Default: sam-app-sample
+    Type: String
+  FileName:
+    Description: File name for lambda function.
+    Default: tblocker.zip
+    Type: String
+  SNS:
+    Description: SNS ARN.
+    Default: ""
+    Type: String
+  DatabasePort:
+    Type: Number
+    Default: 5432
+    Description: The port to connect to on the database
 Resources:
-  HelloWorldFunction:
-    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+  tblockergenerator:
+    Type: 'AWS::Lambda::Function'
+    DependsOn:
+       - DatabaseSecurityGroup
     Properties:
-      CodeUri: hello_world/
       Handler: app.lambda_handler
+      MemorySize: '256'
+      Description: This Lambda is used for tblocker generator
+      FunctionName: !Join ['-',['av', !Ref ApplicationName, 'tblockergenerator' ]]
+      VpcConfig: 
+        SubnetIds: !Ref Subnets
+        SecurityGroupIds: 
+            - !GetAtt DatabaseSecurityGroup.GroupId     
+      Role: !Ref LambdaExceutionRole
       Runtime: python3.7
-      MemorySize: 320
-      Timeout: 60
-      Events:
-        HelloWorld:
-          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
-          Properties:
-            Path: /hello
-            Method: get
-
-Outputs:
-  # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
-  # Find out more about other implicit resources you can reference within SAM
-  # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
-  HelloWorldApi:
-    Description: "API Gateway endpoint URL for Prod stage for Hello World function"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/hello/"
-  HelloWorldFunction:
-    Description: "Hello World Lambda Function ARN"
-    Value: !GetAtt HelloWorldFunction.Arn
+      Timeout: '60'
+      Environment:
+        Variables:
+            SEVERITY_CLEANUP_SSM : !Ref DBssmparam
+            SEVERITY_DB_FUNCTION : !Ref DBFunctionName
+      Tags:
+        - Key: Application
+          Value: smartprice-csa
+        - Key: uai
+          Value: uai2002097
+      Code:
+        S3Bucket: !Ref S3BucketName
+        S3Key: !Join ['/', ['Dev', !Ref FileName]]
+  ScheduleRule:
+    Type: 'AWS::Events::Rule'
+    Properties:
+      Name: tblockergeneratorRule
+      ScheduleExpression: cron(30 3 * * ? *)
+      State: ENABLED
+      Targets:
+        - Arn: !GetAtt
+            - tblockergenerator
+            - Arn
+          Id: tblockergenerator
+    DependsOn:
+      - tblockergenerator
+  LambdaInvokePermission:
+    Type: 'AWS::Lambda::Permission'
+    Properties:
+      FunctionName: !GetAtt
+        - tblockergenerator
+        - Arn
+      Action: 'lambda:InvokeFunction'
+      Principal: events.amazonaws.com
+      SourceArn: !GetAtt
+        - ScheduleRule
+        - Arn
+    DependsOn:
+      - tblockergenerator
+      - ScheduleRule
+  DatabaseSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: !Join ['', ['Security group for allowing connectivity from tblocker lambda to database in ', !Ref VpcId]]
+      VpcId: !Ref VpcId
+  DatabaseSecurityGroupSecurityGroupHTTPInbound1:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !GetAtt DatabaseSecurityGroup.GroupId
+      IpProtocol: tcp
+      FromPort: !Ref DatabasePort
+      ToPort: !Ref DatabasePort
+      SourceSecurityGroupId: !GetAtt DatabaseSecurityGroup.GroupId
