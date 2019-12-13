@@ -7,6 +7,10 @@
 		"ParameterValue": "newfunction"
 	},
 	{
+		"ParameterKey": "Environment",
+		"ParameterValue": "qa"
+	},
+	{
 		"ParameterKey": "ApplicationName",
 		"ParameterValue": "test-app-qa"
 	},
