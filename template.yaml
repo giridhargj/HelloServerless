@@ -1,6 +1,10 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: This Lambda is used for tblocker generator
 Parameters:
+  Environment:
+    Type: String
+    Default: dev
+    Description: Deployment Env
   ApplicationName:
     Type: String
     Default: av-spcsa
@@ -35,17 +39,11 @@ Parameters:
 Resources:
   tblockergenerator:
     Type: 'AWS::Lambda::Function'
-    DependsOn:
-       - DatabaseSecurityGroup
     Properties:
       Handler: app.lambda_handler
       MemorySize: '256'
       Description: This Lambda is used for tblocker generator
-      FunctionName: !Join ['-',['av', !Ref ApplicationName, 'tblockergenerator' ]]
-      VpcConfig: 
-        SubnetIds: !Ref Subnets
-        SecurityGroupIds: 
-            - !GetAtt DatabaseSecurityGroup.GroupId     
+      FunctionName: !Join ['-',['av', !Ref ApplicationName, !Ref Environment, 'tblockergenerator' ]]
       Role: !Ref LambdaExceutionRole
       Runtime: python3.7
       Timeout: '60'
@@ -64,7 +62,7 @@ Resources:
   ScheduleRule:
     Type: 'AWS::Events::Rule'
     Properties:
-      Name: tblockergeneratorRule
+      Name: !Join ['-',['av', !Ref ApplicationName, !Ref Environment, 'tblockergeneratorrule' ]]
       ScheduleExpression: cron(30 3 * * ? *)
       State: ENABLED
       Targets:
@@ -88,16 +86,3 @@ Resources:
     DependsOn:
       - tblockergenerator
       - ScheduleRule
-  DatabaseSecurityGroup:
-    Type: AWS::EC2::SecurityGroup
-    Properties:
-      GroupDescription: !Join ['', ['Security group for allowing connectivity from tblocker lambda to database in ', !Ref VpcId]]
-      VpcId: !Ref VpcId
-  DatabaseSecurityGroupSecurityGroupHTTPInbound1:
-    Type: AWS::EC2::SecurityGroupIngress
-    Properties:
-      GroupId: !GetAtt DatabaseSecurityGroup.GroupId
-      IpProtocol: tcp
-      FromPort: !Ref DatabasePort
-      ToPort: !Ref DatabasePort
-      SourceSecurityGroupId: !GetAtt DatabaseSecurityGroup.GroupId
