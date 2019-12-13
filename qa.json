@@ -1,0 +1,25 @@
+[{
+		"ParameterKey": "DBssmparam",
+		"ParameterValue": "testparam"
+	},
+	{
+		"ParameterKey": "DBFunctionName",
+		"ParameterValue": "newfunction"
+	},
+	{
+		"ParameterKey": "ApplicationName",
+		"ParameterValue": "test-app-qa"
+	},
+	{
+		"ParameterKey": "Subnets",
+		"ParameterValue": "subnet-efaf9ac1,subnet-ae7987e3"
+	},
+	{
+		"ParameterKey": "VpcId",
+		"ParameterValue": "vpc-66641e1c"
+	},
+	{
+		"ParameterKey": "LambdaExceutionRole",
+		"ParameterValue": "arn:aws:iam::245514562534:role/testiam-CustomLambdaExecutionRole-1NO4HHWLUGYZE"
+	}
+]
