@@ -5,6 +5,9 @@ phases:
       python: 3.7
   build:
     commands:
+      - echo "$CODEBUILD_RESOLVED_SOURCE_VERSION"
+      - echo "$CODEBUILD_SOURCE_REPO_URL"
+      - echo "$CODEBUILD_SOURCE_VERSION"
       - pip install --upgrade pip
       - pip install pipenv --user
       - pip install -r requirements.txt -t .
