@@ -1,14 +1,19 @@
-[{
+[
+	{
 		"ParameterKey": "DBssmparam",
-		"ParameterValue": "testparam1234567"
+		"ParameterValue": "testparam2"
+	},
+	{
+		"ParameterKey": "Environment",
+		"ParameterValue": "dev"
 	},
 	{
 		"ParameterKey": "DBFunctionName",
-		"ParameterValue": "newfunction212"
+		"ParameterValue": "testfunction"
 	},
 	{
 		"ParameterKey": "ApplicationName",
-		"ParameterValue": "test-app123"
+		"ParameterValue": "test-app"
 	},
 	{
 		"ParameterKey": "Subnets",
