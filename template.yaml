@@ -24,14 +24,6 @@ Parameters:
     Description: Name of Db function used for clean up.
     Default: totalRecords
     Type: String
-  S3BucketName:
-    Description: Name of db bucket storing lambda code.
-    Default: sam-app-sample
-    Type: String
-  FileName:
-    Description: File name for lambda function.
-    Default: tblocker.zip
-    Type: String
   SNS:
     Description: SNS ARN.
     Default: ""
@@ -67,8 +59,8 @@ Resources:
         - Key: uai
           Value: uai2002097
       Code:
-        S3Bucket: !Ref S3BucketName
-        S3Key: !Join ['/', ['Dev', !Ref FileName]]
+        S3Bucket: 
+        S3Key: 
   ScheduleRule:
     Type: 'AWS::Events::Rule'
     Properties:
