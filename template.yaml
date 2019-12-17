@@ -62,7 +62,7 @@ Resources:
   tblockerLambdVersion:
     Type: AWS::Lambda::Version
     Properties: 
-      Description:tblocker lambda version
+      Description: tblocker lambda version
       FunctionName: !GetAtt
         - tblockergenerator
         - Arn
@@ -82,8 +82,8 @@ Resources:
       ScheduleExpression: cron(30 3 * * ? *)
       State: ENABLED
       Targets:
-        - Arn: !Ref 
-          Id: tblockergenerator
+        - Arn: !Ref tblockerlambdaAlias
+          Id: tblockerlambdaAlias
     DependsOn:
       - tblockergenerator
   LambdaInvokePermission:
