@@ -4,7 +4,7 @@ Parameters:
   Environment:
     Type: String
     Default: dev
-    Description: Deployment Env
+    Description: Deployment Environment
   ApplicationName:
     Type: String
     Default: av-spcsa
