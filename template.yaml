@@ -58,15 +58,31 @@ Resources:
           Value: uai2002097
       Code:
         S3Bucket: 
-        S3Key:
-  tblockerLambdVersion:
-    Type: AWS::Lambda::Version
-    Properties: 
-      Description: tblocker lambda version
+        S3Key: 
+  ScheduleRule:
+    Type: 'AWS::Events::Rule'
+    Properties:
+      Name: !Join ['-',['av', !Ref ApplicationName, !Ref Environment, 'tblockergeneratorrule' ]]
+      ScheduleExpression: cron(30 3 * * ? *)
+      State: ENABLED
+      Targets:
+        - Arn: !GetAtt
+            - tblockergenerator
+            - Arn
+          Id: tblockergenerator
+    DependsOn:
+      - tblockergenerator
+  LambdaInvokePermission:
+    Type: 'AWS::Lambda::Permission'
+    Properties:
       FunctionName: !GetAtt
         - tblockergenerator
         - Arn
- Outputs:
-  tblockerLambdVersion:
-   Description: Lambda Version
-   Value: !Ref tblockerLambdVersion
+      Action: 'lambda:InvokeFunction'
+      Principal: events.amazonaws.com
+      SourceArn: !GetAtt
+        - ScheduleRule
+        - Arn
+    DependsOn:
+      - tblockergenerator
+      - ScheduleRule
