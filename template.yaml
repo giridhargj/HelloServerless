@@ -73,7 +73,7 @@ Resources:
       FunctionName: !GetAtt
         - tblockergenerator
         - Arn
-      FunctionVersion: !Select [6, !Split [":", !Ref tblockerLambdVersion]]
+      FunctionVersion: !Select [7, !Split [":", !Ref tblockerLambdVersion]]
       Name: PROD
   ScheduleRule:
     Type: 'AWS::Events::Rule'
