@@ -58,7 +58,23 @@ Resources:
           Value: uai2002097
       Code:
         S3Bucket: 
-        S3Key: 
+        S3Key:
+  tblockerLambdVersion:
+    Type: AWS::Lambda::Version
+    Properties: 
+      Description:
+      FunctionName: !GetAtt
+        - tblockergenerator
+        - Arn
+  tblockerlambdaAlias 
+    Type: AWS::Lambda::Alias
+    Properties: 
+      Description: Alias for the production version of  Porduction Version for TBlocker
+      FunctionName: !GetAtt
+        - tblockergenerator
+        - Arn
+      FunctionVersion: !Select [6, !Split [":", !Ref tblockerLambdVersion]]
+      Name: PROD
   ScheduleRule:
     Type: 'AWS::Events::Rule'
     Properties:
@@ -66,9 +82,7 @@ Resources:
       ScheduleExpression: cron(30 3 * * ? *)
       State: ENABLED
       Targets:
-        - Arn: !GetAtt
-            - tblockergenerator
-            - Arn
+        - Arn: !Ref 
           Id: tblockergenerator
     DependsOn:
       - tblockergenerator
