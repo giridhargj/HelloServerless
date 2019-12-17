@@ -62,7 +62,7 @@ Resources:
   tblockerLambdVersion:
     Type: AWS::Lambda::Version
     Properties: 
-      Description:
+      Description:tblocker lambda version
       FunctionName: !GetAtt
         - tblockergenerator
         - Arn
