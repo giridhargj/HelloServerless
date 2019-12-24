@@ -11,14 +11,14 @@ Parameters:
     Description: The name of the application to create a security group for
   VpcId:
     Type: AWS::EC2::VPC::Id
-    Description: Choose which VPC the Application Load Balancer should be deployed to
+    Description: Choose which VPC the Application Load Balancer should be deployed
+      to
   Subnets:
     Type: List<AWS::EC2::Subnet::Id>
     Description: List of subnets to use
   LambdaExceutionRole:
-    Description: 'Lambda execution role, with access to SSM, SNS.'
-    Default: >-
-      arn:aws:iam::245514562534:role/aws-sam-getting-started-HelloWorldFunctionRole-18R3R7MQBPJCN
+    Description: Lambda execution role, with access to SSM, SNS.
+    Default: arn:aws:iam::245514562534:role/aws-sam-getting-started-HelloWorldFunctionRole-18R3R7MQBPJCN
     Type: String
   DBssmparam:
     Description: SSM parameter with DB details.
@@ -30,7 +30,7 @@ Parameters:
     Type: String
   SNS:
     Description: SNS ARN.
-    Default: ""
+    Default: ''
     Type: String
   DatabasePort:
     Type: Number
@@ -38,51 +38,71 @@ Parameters:
     Description: The port to connect to on the database
 Resources:
   tblockergenerator:
-    Type: 'AWS::Lambda::Function'
+    Type: AWS::Lambda::Function
     Properties:
       Handler: app.lambda_handler
       MemorySize: '256'
       Description: This Lambda is used for tblocker generator
-      FunctionName: !Join ['-',['av', !Ref ApplicationName, !Ref Environment, 'tblockergenerator' ]]
-      Role: !Ref LambdaExceutionRole
+      FunctionName:
+        Fn::Join:
+        - '-'
+        - - av
+          - Ref: ApplicationName
+          - Ref: Environment
+          - tblockergenerator
+      Role:
+        Ref: LambdaExceutionRole
       Runtime: python3.7
       Timeout: '60'
       Environment:
         Variables:
-            SEVERITY_CLEANUP_SSM : !Ref DBssmparam
-            SEVERITY_DB_FUNCTION : !Ref DBFunctionName
+          SEVERITY_CLEANUP_SSM:
+            Ref: DBssmparam
+          SEVERITY_DB_FUNCTION:
+            Ref: DBFunctionName
       Tags:
-        - Key: Application
-          Value: smartprice-csa
-        - Key: uai
-          Value: uai2002097
+      - Key: Application
+        Value: smartprice-csa
+      - Key: uai
+        Value: uai2002097
       Code:
-        S3Bucket: 
-        S3Key: 
+        ZipFile: |
+          import json
+          def handler(event, context):
+              print("Hare Srinivasa!")
   ScheduleRule:
-    Type: 'AWS::Events::Rule'
+    Type: AWS::Events::Rule
     Properties:
-      Name: !Join ['-',['av', !Ref ApplicationName, !Ref Environment, 'tblockergeneratorrule' ]]
+      Name:
+        Fn::Join:
+        - '-'
+        - - av
+          - Ref: ApplicationName
+          - Ref: Environment
+          - tblockergeneratorrule
       ScheduleExpression: cron(30 3 * * ? *)
       State: ENABLED
       Targets:
-        - Arn: !GetAtt
-            - tblockergenerator
-            - Arn
-          Id: tblockergenerator
+      - Arn:
+          Fn::GetAtt:
+          - tblockergenerator
+          - Arn
+        Id: tblockergenerator
     DependsOn:
-      - tblockergenerator
+    - tblockergenerator
   LambdaInvokePermission:
-    Type: 'AWS::Lambda::Permission'
+    Type: AWS::Lambda::Permission
     Properties:
-      FunctionName: !GetAtt
+      FunctionName:
+        Fn::GetAtt:
         - tblockergenerator
         - Arn
-      Action: 'lambda:InvokeFunction'
+      Action: lambda:InvokeFunction
       Principal: events.amazonaws.com
-      SourceArn: !GetAtt
+      SourceArn:
+        Fn::GetAtt:
         - ScheduleRule
         - Arn
     DependsOn:
-      - tblockergenerator
-      - ScheduleRule
+    - tblockergenerator
+    - ScheduleRule
