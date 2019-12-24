@@ -1,0 +1,11 @@
+{
+  "Parameters" : {
+    "DBssmparam" : "TestWordPressDB",
+    "Environment" : "TestDBRootPassword",
+    "DBFunctionName" : "TestDBRootPassword",
+    "ApplicationName" : "TestDBuser",
+	"Subnets"  : "subnet-efaf9ac1,subnet-ae7987e3",
+    "VpcId" : "vpc-66641e1c",
+	"LambdaExceutionRole":"arn:aws:iam::245514562534:role/testiam-CustomLambdaExecutionRole-1NO4HHWLUGYZE"
+  }
+}
