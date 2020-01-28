@@ -1,2 +1,3 @@
 requests
 XlsxWriter
+aws-psycopg2
